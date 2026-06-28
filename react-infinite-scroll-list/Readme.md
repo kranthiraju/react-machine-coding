@@ -1,38 +1,138 @@
-## Pagination
-* Build a React component called `Pagination` that displays a list of products fetched from a remote API. The products should be displayed in a paginated format, with 10 items per page and navigational buttons to go to the **previous** and **next** pages.
+# Infinite Scroll Product List
 
-### **Requirements:**
+## Problem Statement
 
-1. Fetch products from this API endpoint:
+Build a React application that displays a list of products using **Infinite Scrolling**. Products should be loaded in batches as the user scrolls down. The application should also **lazy load product images** and be optimized to handle a large dataset efficiently.
 
-```text
-https://dummyjson.com/products?limit=200
+---
+
+## Requirements
+
+### Functional Requirements
+
+- Display a list of product cards.
+- Initially load the first batch of products.
+- Automatically load the next batch when the user reaches the bottom.
+- Stop fetching when all products are loaded.
+- Show loading and error states.
+- Prevent duplicate API requests.
+
+### Performance Requirements
+
+- Implement Infinite Scroll using `IntersectionObserver`.
+- Lazy load images using `IntersectionObserver` (or `loading="lazy"`).
+- Avoid unnecessary re-renders.
+- Keep scrolling smooth for large datasets.
+
+---
+
+## Application Flow
+
+```
+Application Loads
+        │
+        ▼
+Fetch First Batch
+        │
+        ▼
+Render Product Cards
+        │
+        ▼
+Observe Bottom Sentinel
+        │
+        ▼
+User Scrolls
+        │
+        ▼
+Sentinel Intersects Viewport
+        │
+        ▼
+Fetch Next Batch
+        │
+        ▼
+Append Products
+        │
+        ▼
+Repeat Until No More Data
 ```
 
-2. Display **10 products per page** with:
+---
 
-   * Thumbnail image
-   * Title
+# Infinite Scroll Implementation
+### Intersection Observer
 
-3. Include pagination controls:
+```jsx
+useEffect(() => {
+  if (!loaderRef.current) return;
 
-   * A Previous button with **id="previous"** to navigate to the previous page. It should be disabled on the first page.
-   * A Next button with **id="next"** to navigate to the next page. It should be disabled on the last page.
-   * Buttons for each page number (1-20) (highlight the active one)
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (
+        entry.isIntersecting &&
+        !loading
+      ) {
+        setPage(prev => prev + 1);
+      }
+    },
+    {
+      threshold: 1,
+    }
+  );
 
-4. Clicking "Next" should go to the next page.
-   Clicking "Previous" should go to the previous page.
-   Clicking a page number (1-20) should directly load that page.
+  observer.observe(loaderRef.current);
 
-5. Show `"No products found"` message if the product list is empty.
+  return () => observer.disconnect();
+}, [loading]);
+```
 
-### **Additional Notes:**
+---
 
-* You must use `useState` and `useEffect`.
-* Do not use any third-party pagination libraries.
-* Use functional components only.
-* You may use `react-icons`, `FiChevronsLeft` for left arrow icon and `FiChevronsLeft` for right arrow icon (optional).
+# Lazy Loading Images
 
-### Reference UI
+Instead of loading every image immediately, each image is observed individually.
 
-![pagination](https://do6gp1uxl3luu.cloudfront.net/question-gif/pagination.gif)
+### LazyImage Component
+
+```jsx
+function LazyImage({ src, alt }) {
+  const imgRef = useRef(null);
+  const [imageSrc, setImageSrc] = useState(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setImageSrc(src);
+          observer.disconnect();
+        }
+      },
+      {
+        threshold: 1,
+      }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [src]);
+
+  return (
+    <img
+      ref={imgRef}
+      src={imageSrc}
+      alt={alt}
+      loading="lazy"
+    />
+  );
+}
+```
+---
+
+## Key Concepts
+
+- **IntersectionObserver** detects when elements enter the viewport without expensive scroll listeners.
+- **Infinite Scroll** loads additional products as the user reaches the end of the list.
+- **Lazy Loading** delays image downloads until they are about to become visible.
+- **`loading`** ensures only one request is in flight at a time, avoiding duplicate fetches.
