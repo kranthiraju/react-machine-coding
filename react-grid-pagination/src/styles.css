@@ -1,0 +1,18 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+.product-grid {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.product-item {
+  border: 1px solid;
+  padding: 6px;
+  width: 200px;
+}
+.selected {
+  background: rgb(220, 220, 220);
+}
