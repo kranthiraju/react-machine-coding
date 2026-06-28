@@ -35,4 +35,4 @@ https://dummyjson.com/products?limit=200
 
 ### Reference UI
 
-![pagination](react-grid-pagination/Documents.gif)
+![pagination](./react-grid-pagination/Documents.gif)
