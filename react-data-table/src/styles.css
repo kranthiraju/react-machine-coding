@@ -1,0 +1,42 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+table {
+  width: 100%;
+  border-collapse: collapse; /* Merges adjacent borders */
+}
+th {
+  text-transform: capitalize;
+}
+table,
+th,
+td {
+  border: 1px solid black;
+}
+
+th,
+td {
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .pages {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .items {
+    padding-right: 1rem;
+  }
+}
